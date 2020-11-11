@@ -10,21 +10,38 @@ namespace ynoise {
 YNoiseFilter::YNoiseFilter(ros::NodeHandle & nh, ros::NodeHandle nh_private) :
     nh_(nh)
 {
-  filtered_event_array_pub_ = nh.advertise<dvs_msgs::EventArray>("/filtered_events", 1);
-  event_array_sub_ = nh.subscribe("/dvs/events", 1, &YNoiseFilter::runFilter, this);
+	filtered_event_array_pub_ = nh.advertise<dvs_msgs::EventArray>("/filtered_events", 1);
+	event_array_sub_ = nh.subscribe("/dvs/events", 1, &YNoiseFilter::runFilter, this);
 
-  // load parameters
-  //TODO: load parameters automatically
-  sizeX = 346; 
-  sizeY = 260;
-  deltaT = 10000; //From 1 to 1000000
-  lParam = 3; //From 3 to 15
-  squareLParam = lParam * lParam;
+	// load parameters
+	//TODO: load parameters automatically
+	sizeX = 346; 
+	sizeY = 260;
+	deltaT = 10000; //From 1 to 1000000
+	lParam = 3; //From 3 to 15
+	squareLParam = lParam * lParam;
 	threshold = 2; //From 0 to 1000
-	dividedLparam;
-	modLparam;
-  
-  densityMatrix.resize(squareLParam);
+
+	densityMatrix.resize(squareLParam);
+	resetMatrix = densityMatrix;
+	matrixMem.resize(sizeX * sizeY);
+
+	regenerateDMLparam();
+
+	this->f_ = boost::bind(&YNoiseFilter::parameter_callback, this, _1, _2);
+	this->server_.setCallback(this->f_);
+}
+
+void YNoiseFilter::parameter_callback(ynoise_filter::ynoiseCfgConfig &config, uint32_t level)
+{
+	sizeX = config.sizeX; 
+	sizeY = config.sizeY;
+	deltaT = config.deltaT; //From 1 to 1000000
+	lParam = config.lParam; //From 3 to 15
+	squareLParam = lParam * lParam;
+	threshold = config.threshold; //From 0 to 1000
+
+	densityMatrix.resize(squareLParam);
 	resetMatrix = densityMatrix;
 	matrixMem.resize(sizeX * sizeY);
 

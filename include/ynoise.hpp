@@ -17,6 +17,10 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <camera_info_manager/camera_info_manager.h>
 
+// dynamic reconfigure
+#include <dynamic_reconfigure/server.h>
+#include <ynoise_filter/ynoiseCfgConfig.h>
+
 #include <vector>
 
 namespace ynoise {
@@ -36,12 +40,14 @@ namespace ynoise {
 
 class YNoiseFilter {
 public:
-  static const char *initDescription();
+  	static const char *initDescription();
 
 	YNoiseFilter(ros::NodeHandle & nh, ros::NodeHandle nh_private);
 
 	void runFilter(const dvs_msgs::EventArray::ConstPtr& input_event_array);
-  
+
+	void parameter_callback(ynoise_filter::ynoiseCfgConfig &config, uint32_t level);  
+
 private:
 	ros::NodeHandle & nh_;
   	densityMatrixT densityMatrix;
@@ -56,8 +62,12 @@ private:
 	dividedT dividedLparam;
 	dividedT modLparam;
 
-  ros::Publisher filtered_event_array_pub_;
-  ros::Subscriber event_array_sub_;
+  	ros::Publisher filtered_event_array_pub_;
+  	ros::Subscriber event_array_sub_;
+
+	//dynamic config
+	dynamic_reconfigure::Server<ynoise_filter::ynoiseCfgConfig> server_;
+	dynamic_reconfigure::Server<ynoise_filter::ynoiseCfgConfig>::CallbackType f_;
 
 	void updateMatrix(const dvs_msgs::Event &event);
 
