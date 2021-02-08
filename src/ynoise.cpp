@@ -65,7 +65,7 @@ void YNoiseFilter::regenerateDMLparam() {
 void YNoiseFilter::updateMatrix(const dvs_msgs::Event &event) {
 	auto address                 = event.x * sizeY + event.y;
 	matrixMem[address].polarity  = event.polarity;
-	matrixMem[address].timestamp = static_cast<int32_t>(event.ts.toNSec());
+	matrixMem[address].timestamp = static_cast<int32_t>(event.ts.toNSec()/1000);
 }
 
 
@@ -74,7 +74,7 @@ uint8_t YNoiseFilter::calculateDensity(const dvs_msgs::Event &event) {
 	auto sub           = ((lParam - 1) / 2) - 1;
 	auto addressX      = event.x - sub;
 	auto addressY      = event.y - sub;
-	auto timeToCompare = static_cast<uint32_t>(event.ts.toNSec() - deltaT);
+	auto timeToCompare = static_cast<uint32_t>(event.ts.toNSec()/1000 - deltaT);
 	auto polarity      = event.polarity;
 	uint8_t lInfNorm{0}; // event density performed with l infinity norm instead of l1 norm
 	uint8_t sum{0};

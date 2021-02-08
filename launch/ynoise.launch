@@ -4,10 +4,10 @@
   <node name="ynoise_filter" pkg="ynoise_filter" type="ynoise_node" />
 
   <!-- visualization -->
-  <node name="dvs_renderer" pkg="dvs_renderer" type="dvs_renderer">
+  <node name="dvs_noise_renderer" pkg="dvs_renderer" type="dvs_renderer">
     <param name="display_method" value="red-blue"/>
     <remap from="events" to="/filtered_events" />
-    <!-- <remap from="image" to="/dvs/image_raw" /> -->
+    <remap from="image" to="/dvs/image_raw" />
     <remap from="camera_info" to="/dvs/camera_info" />
     <remap from="dvs_rendering" to="filtered_rendering" />
   </node>
